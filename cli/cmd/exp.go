@@ -19,25 +19,26 @@ package cmd
 import (
 	"context"
 	"fmt"
-	"github.com/chaosblade-io/chaosblade-exec-cri/exec"
-	"github.com/chaosblade-io/chaosblade-operator/exec/model"
-	"github.com/chaosblade-io/chaosblade-spec-go/log"
-	"github.com/chaosblade-io/chaosblade/exec/middleware"
-	"github.com/chaosblade-io/chaosblade/exec/cloud"
 	"path"
 
+	"github.com/chaosblade-io/chaosblade-exec-cri/exec"
+	"github.com/chaosblade-io/chaosblade-operator/exec/model"
 	"github.com/chaosblade-io/chaosblade-spec-go/channel"
+	"github.com/chaosblade-io/chaosblade-spec-go/log"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/chaosblade-io/chaosblade-spec-go/util"
 	specutil "github.com/chaosblade-io/chaosblade-spec-go/util"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/chaosblade-io/chaosblade/exec/cloud"
 	"github.com/chaosblade-io/chaosblade/exec/cplus"
 	"github.com/chaosblade-io/chaosblade/exec/cri"
 	"github.com/chaosblade-io/chaosblade/exec/docker"
+	"github.com/chaosblade-io/chaosblade/exec/golang"
 	"github.com/chaosblade-io/chaosblade/exec/jvm"
 	"github.com/chaosblade-io/chaosblade/exec/kubernetes"
+	"github.com/chaosblade-io/chaosblade/exec/middleware"
 	"github.com/chaosblade-io/chaosblade/exec/os"
 	"github.com/chaosblade-io/chaosblade/version"
 )
@@ -133,6 +134,8 @@ func (ec *baseExpCommandService) registerSubCommands() {
 	ec.registerCriExpCommands()
 	// register k8s command
 	ec.registerK8sExpCommands()
+	// register golang command
+	ec.registerGolangExpCommands()
 }
 
 // registerOsExpCommands
@@ -151,7 +154,6 @@ func (ec *baseExpCommandService) registerOsExpCommands() []*modelCommand {
 	return osCommands
 }
 
-
 // registerMiddlewareExpCommands
 func (ec *baseExpCommandService) registerMiddlewareExpCommands() []*modelCommand {
 	file := path.Join(util.GetYamlHome(), fmt.Sprintf("chaosblade-middleware-spec-%s.yaml", version.Ver))
@@ -167,6 +169,7 @@ func (ec *baseExpCommandService) registerMiddlewareExpCommands() []*modelCommand
 	}
 	return middlewareCommands
 }
+
 // registerCloudExpCommands
 func (ec *baseExpCommandService) registerCloudExpCommands() []*modelCommand {
 	file := path.Join(util.GetYamlHome(), fmt.Sprintf("chaosblade-cloud-spec-%s.yaml", version.Ver))
@@ -295,6 +298,17 @@ func (ec *baseExpCommandService) registerK8sExpCommands() []*modelCommand {
 		copyAndAddCommand(cobraCmd, child.command)
 	}
 	return modelCommands
+}
+
+func (ec *baseExpCommandService) registerGolangExpCommands() []*modelCommand {
+	models := golang.GetExpModel()
+	golangCommands := make([]*modelCommand, 0)
+	for idx := range models.Models {
+		model := &models.Models[idx]
+		command := ec.registerExpCommand(model, "")
+		golangCommands = append(golangCommands, command)
+	}
+	return golangCommands
 }
 
 // registerCriExpCommands

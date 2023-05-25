@@ -25,8 +25,8 @@ import (
 	"github.com/chaosblade-io/chaosblade-exec-cri/exec"
 	"github.com/chaosblade-io/chaosblade-spec-go/spec"
 	"github.com/chaosblade-io/chaosblade-spec-go/util"
-
 	"github.com/chaosblade-io/chaosblade/cli/cmd"
+	"github.com/chaosblade-io/chaosblade/exec/golang"
 )
 
 var version = "1.7.1"
@@ -52,8 +52,9 @@ func main() {
 	cplusModels := getCplusModels(cplusSpecFile)
 	criModels := getCriModels(criSpecFile, jvmSpecFile)
 	k8sModels := getKubernetesModels(k8sSpecFile, jvmSpecFile)
+	golangModels := golang.GetExpModel()
 
-	models := mergeModels(osModels, cloudModels, jvmModels, cplusModels, criModels, k8sModels)
+	models := mergeModels(osModels, cloudModels, jvmModels, cplusModels, criModels, k8sModels, golangModels)
 
 	file, err := os.OpenFile(chaosSpecFile, os.O_CREATE|os.O_TRUNC|os.O_RDWR, 0755)
 	if err != nil {
